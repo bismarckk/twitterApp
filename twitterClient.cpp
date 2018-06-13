@@ -1,9 +1,8 @@
 #include "twitterClient.h"
-#include "ConstStrings/constStrings.h"
 #include "EncodeFunctions/encodeFunctions.h"
-#include "cpp-base64/base64.h"
-extern "C"
-{
+#include "httpConstans.h"
+#include "oauthConstans.h"
+extern "C" {
 #include "hmacSha1/src/hmac/hmac.h"
 }
 
@@ -14,22 +13,39 @@ extern "C"
 
 Twitter::Twitter( ) : m_httpClient( ) {}
 
-void
-Twitter::setClienKeyAndSecret( const std::string& key, const std::string& secret )
+int
+Twitter::setClientKeyAndSecret( const std::string& key, const std::string& secret )
 {
+    if ( key.empty( ) || secret.empty( ) )
+    {
+        return STRING_IS_EMPTY;
+    }
     m_clientKey = key;
     m_clientSecret = secret;
+    return 0;
 }
-void
+
+int
 Twitter::setOauthTokenAndSecret( const std::string& token, const std::string& secret )
 {
+    if ( token.empty( ) || secret.empty( ) )
+    {
+        return STRING_IS_EMPTY;
+    }
     m_oauthTokenSecret = secret;
     m_oauthToken = token;
+    return 0;
 }
-void
+
+int
 Twitter::setCertPath( const std::string& certPath )
 {
+    if ( certPath.empty( ) )
+    {
+        return STRING_IS_EMPTY;
+    }
     m_certPath = certPath;
+    return 0;
 }
 
 TwittsContainer
@@ -55,10 +71,10 @@ Twitter::getTwitts( int count, const std::string& name )
 }
 
 // sending post to twitt use signingKey (app secret and user oauth secret)
-void
+int
 Twitter::sendTwitt( const std::string& twittText )
 {
-    if ( "" == m_userToken )
+    if ( m_userToken.empty( ) )
     {
         requestToken( );
         requestAccessToken( );
@@ -82,20 +98,18 @@ Twitter::sendTwitt( const std::string& twittText )
     rapidjson::Document doc;
     doc.Parse( m_httpClient.getData( ).c_str( ) );
     m_signature.erase( O_SIGNATURE );
-    if ( !doc.HasMember( "created_at" ) )
+    // if(doc.HasMember(""))
+    if ( doc.HasMember( "errors" ) )
     {
-        std::cout << "problem with post twitt";
+        std::cout << m_httpClient.getData( );
+        return BAD_AUTHENTICATION;
     }
-    else
-    {
-        std::cout << "Twitt was created at: " << doc["created_at"].GetString( );
-    }
-    // std::cout << m_httpClient.getData( );
+    return 0;
 }
 
 // Get oauth token needed to make url for user
 // use signingKey (app secret and app oauth secret)
-void
+int
 Twitter::requestToken( )
 {
     std::string tmpURL = "api.twitter.com/oauth/request_token";
@@ -115,6 +129,13 @@ Twitter::requestToken( )
     m_httpClient.httpsEnable( m_certPath );
     m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
     m_httpClient.sendPost( tmpURL, "" );
+    rapidjson::Document doc;
+    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    if ( doc.HasMember( "errors" ) )
+    {
+        std::cout << m_httpClient.getData( );
+        return BAD_AUTHENTICATION;
+    }
 
     std::string oauthToken = m_httpClient.getData( );
     size_t found = oauthToken.find( "oauth_token=" );
@@ -123,11 +144,12 @@ Twitter::requestToken( )
     {
         m_oauthTokenFromRequest = oauthToken.substr( found + 12, endToken - 12 );
     }
+    return 0;
 }
 
 // Using oauth token that is setting in function requestToken( ).
 // Get pin from user and change it for user oauth token and user ouath secret
-void
+int
 Twitter::requestAccessToken( )
 {
     std::cout << "Please copy that link below and paste in browser\n";
@@ -158,6 +180,13 @@ Twitter::requestAccessToken( )
     m_httpClient.httpsEnable( m_certPath );
     m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
     m_httpClient.sendPost( tmpURL, body );
+    rapidjson::Document doc;
+    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    if ( doc.HasMember( "errors" ) )
+    {
+        std::cout << m_httpClient.getData( );
+        return BAD_AUTHENTICATION;
+    }
 
     std::string oauthToken = m_httpClient.getData( );
     size_t found = oauthToken.find( "oauth_token=" );
@@ -174,6 +203,7 @@ Twitter::requestAccessToken( )
         m_userOauthTokenSecret = oauthToken.substr( found + 19, endToken - 17 );
     }
     m_signature.clear( );
+    return 0;
 }
 
 std::string

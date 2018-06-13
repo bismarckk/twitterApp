@@ -1,5 +1,5 @@
-#ifndef CONSTSTRINGS_H
-#define CONSTSTRINGS_H
+#ifndef OAUTHCONSTANS_H
+#define OAUTHCONSTANS_H
 
 #include <string>
 

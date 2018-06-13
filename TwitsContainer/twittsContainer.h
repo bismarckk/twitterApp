@@ -32,7 +32,7 @@ public:
     TwittsContainer( );
     TwittsContainer( const std::string& jsonDocument );
     size_t getSize( ) const;
-    Twitt getTwitt( int selectedTwitt );
+    Twitt getTwitt( int selectedTwitt ) const;
     Twitt operator[]( size_t selected );
 
 private:

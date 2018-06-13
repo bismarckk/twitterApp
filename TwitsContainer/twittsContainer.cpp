@@ -48,7 +48,7 @@ TwittsContainer::TwittsContainer( const std::string& jsonDocument )
 }
 
 Twitt
-TwittsContainer::getTwitt( int selectedTwitt )
+TwittsContainer::getTwitt( int selectedTwitt ) const
 {
     return m_twittVector[selectedTwitt];
 }

@@ -18,10 +18,10 @@ add_subdirectory(rapidjson)
 add_subdirectory(hmacSha1)
 
 set(CPP_FILES ${CPPFILES} twitterClient.cpp 
-                        httpConstans.cpp oauthConstans.cpp 
-                        EncodeFunctions/encodeFunctions.cpp 
-                        Socket/httpClient.cpp 
-                        TwitsContainer/twittsContainer.cpp)
+                          httpConstans.cpp oauthConstans.cpp 
+                          EncodeFunctions/encodeFunctions.cpp 
+                          Socket/httpClient.cpp 
+                          TwitsContainer/twittsContainer.cpp)
 add_library(Twitter ${CPP_FILES})
 set(EXTRA_LIBS ${EXTRALIBS} Twitter Sha  )
 add_executable(main main.cpp )

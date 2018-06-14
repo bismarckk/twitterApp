@@ -1,0 +1,5 @@
+rapidjson
+debug
+hmacSha1
+*.json
+*.crt

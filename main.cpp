@@ -31,5 +31,5 @@ main( )
         obj.sendTwitt( tmpStr );
     }
     return 0;
-    /////asldalsdasjfsdlfsds
+    /////asldalsd
 }

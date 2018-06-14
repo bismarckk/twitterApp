@@ -1,8 +1,10 @@
 #include "twitterClient.h"
 #include "EncodeFunctions/encodeFunctions.h"
+#include "httpClientInterface.h"
 #include "httpConstans.h"
 #include "oauthConstans.h"
-extern "C" {
+extern "C"
+{
 #include "hmacSha1/src/hmac/hmac.h"
 }
 
@@ -10,6 +12,8 @@ extern "C" {
 #include <iostream>
 #include <map>
 #include <random>
+
+using namespace Oauth;
 
 Twitter::Twitter( ) : m_httpClient( ) {}
 
@@ -78,18 +82,18 @@ Twitter::sendTwitt( const std::string& twittText )
     {
         requestToken( );
         requestAccessToken( );
-        m_signature[O_TOKEN] = m_userToken;
-        m_signature[O_CONSUMERKEY] = m_clientKey;
-        m_signature[O_SIGNATUREMETHOD] = "HMAC-SHA1";
-        m_signature[O_VERSION] = "1.0";
+        m_signature[Oauth::TOKEN] = m_userToken;
+        m_signature[CONSUMERKEY] = m_clientKey;
+        m_signature[SIGNATUREMETHOD] = "HMAC-SHA1";
+        m_signature[VERSION] = "1.0";
         m_signingKey = m_clientSecret + "&" + m_userOauthTokenSecret;
     }
     const std::string TMPURL = "api.twitter.com/1.1/statuses/update.json";
     std::time_t t = std::time( 0 );
-    m_signature[O_NONCE] = generateToken( );
-    m_signature[O_TIMESTAMP] = std::to_string( t );
+    m_signature[NONCE] = generateToken( );
+    m_signature[TIMESTAMP] = std::to_string( t );
     m_signature["status"] = twittText;
-    m_signature[O_SIGNATURE] = createSignature( TMPURL );
+    m_signature[SIGNATURE] = createSignature( TMPURL );
     m_signature.erase( "status" );
 
     m_httpClient.httpsEnable( m_certPath );
@@ -97,7 +101,7 @@ Twitter::sendTwitt( const std::string& twittText )
     m_httpClient.sendPost( TMPURL + "?status=" + encodePercent( twittText ), "" );
     rapidjson::Document doc;
     doc.Parse( m_httpClient.getData( ).c_str( ) );
-    m_signature.erase( O_SIGNATURE );
+    m_signature.erase( SIGNATURE );
     // if(doc.HasMember(""))
     if ( doc.HasMember( "errors" ) )
     {
@@ -116,15 +120,14 @@ Twitter::requestToken( )
     m_signature.clear( );
     std::time_t t = std::time( 0 );
     m_signingKey = m_clientSecret + "&" + m_oauthTokenSecret;
-
-    m_signature[O_TOKEN] = m_oauthToken;
-    m_signature[O_CONSUMERKEY] = m_clientKey;
-    m_signature[O_NONCE] = generateToken( );
-    m_signature[O_SIGNATUREMETHOD] = "HMAC-SHA1";
-    m_signature[O_TIMESTAMP] = std::to_string( t );
-    m_signature[O_VERSION] = "1.0";
-    m_signature[O_CALLBACK] = "oob";
-    m_signature[O_SIGNATURE] = createSignature( tmpURL );
+    m_signature[TOKEN] = m_oauthToken;
+    m_signature[CONSUMERKEY] = m_clientKey;
+    m_signature[NONCE] = generateToken( );
+    m_signature[SIGNATUREMETHOD] = "HMAC-SHA1";
+    m_signature[TIMESTAMP] = std::to_string( t );
+    m_signature[VERSION] = "1.0";
+    m_signature[CALLBACK] = "oob";
+    m_signature[SIGNATURE] = createSignature( tmpURL );
 
     m_httpClient.httpsEnable( m_certPath );
     m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
@@ -165,18 +168,18 @@ Twitter::requestAccessToken( )
     std::time_t t = std::time( 0 );
     m_signingKey = m_clientSecret + "&" + m_oauthTokenSecret;
 
-    m_signature[O_VERIFIER] = pin;
-    m_signature[O_CALLBACK] = "oob";
-    m_signature[O_TOKEN] = m_oauthTokenFromRequest;
-    m_signature[O_CONSUMERKEY] = m_clientKey;
-    m_signature[O_NONCE] = generateToken( );
-    m_signature[O_SIGNATUREMETHOD] = "HMAC-SHA1";
-    m_signature[O_TIMESTAMP] = std::to_string( t );
-    m_signature[O_VERSION] = "1.0";
-    m_signature[O_SIGNATURE] = createSignature( tmpURL );
+    m_signature[VERIFIER] = pin;
+    m_signature[CALLBACK] = "oob";
+    m_signature[TOKEN] = m_oauthTokenFromRequest;
+    m_signature[CONSUMERKEY] = m_clientKey;
+    m_signature[NONCE] = generateToken( );
+    m_signature[SIGNATUREMETHOD] = "HMAC-SHA1";
+    m_signature[TIMESTAMP] = std::to_string( t );
+    m_signature[VERSION] = "1.0";
+    m_signature[SIGNATURE] = createSignature( tmpURL );
 
-    m_signature.erase( O_VERIFIER );
-    std::string body = O_VERIFIER + "=" + pin;
+    m_signature.erase( VERIFIER );
+    std::string body = VERIFIER + "=" + pin;
     m_httpClient.httpsEnable( m_certPath );
     m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
     m_httpClient.sendPost( tmpURL, body );

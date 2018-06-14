@@ -2,15 +2,16 @@
 #define OAUTHCONSTANS_H
 
 #include <string>
-
-extern const std::string O_CONSUMERKEY;
-extern const std::string O_TIMESTAMP;
-extern const std::string O_SIGNATURE;
-extern const std::string O_VERSION;
-extern const std::string O_SIGNATUREMETHOD;
-extern const std::string O_CALLBACK;
-extern const std::string O_NONCE;
-extern const std::string O_TOKEN;
-extern const std::string O_VERIFIER;
-
+namespace Oauth
+{
+extern const std::string CONSUMERKEY;
+extern const std::string TIMESTAMP;
+extern const std::string SIGNATURE;
+extern const std::string VERSION;
+extern const std::string SIGNATUREMETHOD;
+extern const std::string CALLBACK;
+extern const std::string NONCE;
+extern const std::string TOKEN;
+extern const std::string VERIFIER;
+}  // namespace Oauth
 #endif

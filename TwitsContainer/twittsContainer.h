@@ -11,11 +11,10 @@ class Twitt
 {
 public:
     Twitt( );
-    Twitt( std::string author, std::string date, std::string text );
+    Twitt( const std::string& author, const std::string& date, const std::string& text );
     std::string getAuthor( ) const;
     std::string getDate( ) const;
     std::string getText( ) const;
-    std::string operator=( const Twitt& rhs );
 
 private:
     std::string m_author;
@@ -32,8 +31,8 @@ public:
     TwittsContainer( );
     TwittsContainer( const std::string& jsonDocument );
     size_t getSize( ) const;
-    Twitt getTwitt( int selectedTwitt ) const;
-    Twitt operator[]( size_t selected );
+    const Twitt& getTwitt( int selectedTwitt ) const;
+    const Twitt& operator[]( size_t selected ) const;
 
 private:
     rapidjson::Document m_doc;

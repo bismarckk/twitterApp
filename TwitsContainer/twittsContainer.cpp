@@ -4,7 +4,7 @@
 
 ////////////////////////CLASS TWITT///////////////////////////
 Twitt::Twitt( ) {}
-Twitt::Twitt( std::string author, std::string date, std::string text )
+Twitt::Twitt( const std::string& author, const std::string& date, const std::string& text )
     : m_author( author ), m_date( date ), m_text( text )
 {
 }
@@ -25,12 +25,6 @@ Twitt::getText( ) const
     return m_text;
 }
 
-std::string
-Twitt::operator=( const Twitt& rhs )
-{
-    return rhs.getDate( ) + " " + rhs.getAuthor( ) + " " + rhs.getText( );
-}
-
 std::ostream&
 operator<<( std::ostream& os, const Twitt& rhs )
 {
@@ -47,13 +41,16 @@ TwittsContainer::TwittsContainer( const std::string& jsonDocument )
     fillVector( );
 }
 
-Twitt
+const Twitt&
 TwittsContainer::getTwitt( int selectedTwitt ) const
 {
     return m_twittVector[selectedTwitt];
 }
 
-Twitt TwittsContainer::operator[]( size_t selected ) { return m_twittVector[selected]; }
+const Twitt& TwittsContainer::operator[]( size_t selected ) const
+{
+    return m_twittVector[selected];
+}
 
 size_t
 TwittsContainer::getSize( ) const

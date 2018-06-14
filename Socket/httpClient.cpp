@@ -4,7 +4,6 @@
 #include <iostream>
 
 HttpClient::HttpClient( ) : m_easyCurl( curl_easy_init( ) ), m_list( NULL ), m_http( "http://" ) {}
-
 void
 HttpClient::sendGet( const std::string& url )
 {

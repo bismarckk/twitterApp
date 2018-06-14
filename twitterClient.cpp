@@ -1,10 +1,8 @@
 #include "twitterClient.h"
 #include "EncodeFunctions/encodeFunctions.h"
-#include "httpClientInterface.h"
 #include "httpConstans.h"
 #include "oauthConstans.h"
-extern "C"
-{
+extern "C" {
 #include "hmacSha1/src/hmac/hmac.h"
 }
 
@@ -16,6 +14,13 @@ extern "C"
 using namespace Oauth;
 
 Twitter::Twitter( ) : m_httpClient( ) {}
+
+int
+Twitter::setHttpClient( IHttpClient* client )
+{
+    m_httpClient = client;
+    return 0;
+}
 
 int
 Twitter::setClientKeyAndSecret( const std::string& key, const std::string& secret )
@@ -59,18 +64,18 @@ Twitter::getTwitts( int count, const std::string& name )
     {
         m_token = authAppOnly( );
     }
-    m_httpClient.httpsEnable( m_certPath );
-    m_httpClient.addHeader( USERAGENT, "AppConnectWithTwitter" );
-    m_httpClient.addHeader( ACCEPTENCODING, "json" );
-    m_httpClient.addHeader( AUTHORIZATION, m_token );
+    m_httpClient->httpsEnable( m_certPath );
+    m_httpClient->addHeader( USERAGENT, "AppConnectWithTwitter" );
+    m_httpClient->addHeader( ACCEPTENCODING, "json" );
+    m_httpClient->addHeader( AUTHORIZATION, m_token );
     std::string tmpURL = "api.twitter.com/1.1/statuses/user_timeline.json?count=";
     tmpURL += std::to_string( count );
     tmpURL += "&screen_name=";
     tmpURL += name;
-    m_httpClient.sendGet( tmpURL );
+    m_httpClient->sendGet( tmpURL );
     rapidjson::Document doc;
-    doc.Parse( m_httpClient.getData( ).c_str( ) );
-    TwittsContainer twitts( m_httpClient.getData( ) );
+    doc.Parse( m_httpClient->getData( ).c_str( ) );
+    TwittsContainer twitts( m_httpClient->getData( ) );
     return twitts;
 }
 
@@ -96,16 +101,16 @@ Twitter::sendTwitt( const std::string& twittText )
     m_signature[SIGNATURE] = createSignature( TMPURL );
     m_signature.erase( "status" );
 
-    m_httpClient.httpsEnable( m_certPath );
-    m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
-    m_httpClient.sendPost( TMPURL + "?status=" + encodePercent( twittText ), "" );
+    m_httpClient->httpsEnable( m_certPath );
+    m_httpClient->addHeader( AUTHORIZATION, authorizationHeader( ) );
+    m_httpClient->sendPost( TMPURL + "?status=" + encodePercent( twittText ), "" );
     rapidjson::Document doc;
-    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    doc.Parse( m_httpClient->getData( ).c_str( ) );
     m_signature.erase( SIGNATURE );
     // if(doc.HasMember(""))
     if ( doc.HasMember( "errors" ) )
     {
-        std::cout << m_httpClient.getData( );
+        std::cout << m_httpClient->getData( );
         return BAD_AUTHENTICATION;
     }
     return 0;
@@ -129,18 +134,18 @@ Twitter::requestToken( )
     m_signature[CALLBACK] = "oob";
     m_signature[SIGNATURE] = createSignature( tmpURL );
 
-    m_httpClient.httpsEnable( m_certPath );
-    m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
-    m_httpClient.sendPost( tmpURL, "" );
+    m_httpClient->httpsEnable( m_certPath );
+    m_httpClient->addHeader( AUTHORIZATION, authorizationHeader( ) );
+    m_httpClient->sendPost( tmpURL, "" );
     rapidjson::Document doc;
-    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    doc.Parse( m_httpClient->getData( ).c_str( ) );
     if ( doc.HasMember( "errors" ) )
     {
-        std::cout << m_httpClient.getData( );
+        std::cout << m_httpClient->getData( );
         return BAD_AUTHENTICATION;
     }
 
-    std::string oauthToken = m_httpClient.getData( );
+    std::string oauthToken = m_httpClient->getData( );
     size_t found = oauthToken.find( "oauth_token=" );
     size_t endToken = oauthToken.find( "&", found );
     if ( found != std::string::npos )
@@ -180,18 +185,18 @@ Twitter::requestAccessToken( )
 
     m_signature.erase( VERIFIER );
     std::string body = VERIFIER + "=" + pin;
-    m_httpClient.httpsEnable( m_certPath );
-    m_httpClient.addHeader( AUTHORIZATION, authorizationHeader( ) );
-    m_httpClient.sendPost( tmpURL, body );
+    m_httpClient->httpsEnable( m_certPath );
+    m_httpClient->addHeader( AUTHORIZATION, authorizationHeader( ) );
+    m_httpClient->sendPost( tmpURL, body );
     rapidjson::Document doc;
-    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    doc.Parse( m_httpClient->getData( ).c_str( ) );
     if ( doc.HasMember( "errors" ) )
     {
-        std::cout << m_httpClient.getData( );
+        std::cout << m_httpClient->getData( );
         return BAD_AUTHENTICATION;
     }
 
-    std::string oauthToken = m_httpClient.getData( );
+    std::string oauthToken = m_httpClient->getData( );
     size_t found = oauthToken.find( "oauth_token=" );
     size_t endToken = oauthToken.find( "&", found );
     // std::cout << oauthToken << std::endl;
@@ -308,13 +313,13 @@ Twitter::authAppOnly( )
     }
     authorizationHeader = "Basic ";
     authorizationHeader += encodeBase64( toEncode );
-    m_httpClient.httpsEnable( m_certPath );
-    m_httpClient.addHeader( USERAGENT, "AppConnectWithTwitter" );
-    m_httpClient.addHeader( AUTHORIZATION, authorizationHeader );
-    m_httpClient.addHeader( CONTENTYPE, "application/x-www-form-urlencoded;charset=UTF-8" );
-    m_httpClient.sendPost( "api.twitter.com/oauth2/token", "grant_type=client_credentials" );
+    m_httpClient->httpsEnable( m_certPath );
+    m_httpClient->addHeader( USERAGENT, "AppConnectWithTwitter" );
+    m_httpClient->addHeader( AUTHORIZATION, authorizationHeader );
+    m_httpClient->addHeader( CONTENTYPE, "application/x-www-form-urlencoded;charset=UTF-8" );
+    m_httpClient->sendPost( "api.twitter.com/oauth2/token", "grant_type=client_credentials" );
     std::string bearer = "Bearer ";
     rapidjson::Document doc;
-    doc.Parse( m_httpClient.getData( ).c_str( ) );
+    doc.Parse( m_httpClient->getData( ).c_str( ) );
     return bearer += doc["access_token"].GetString( );
 }

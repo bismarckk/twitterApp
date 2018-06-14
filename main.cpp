@@ -1,3 +1,4 @@
+#include "Socket/httpClient.h"
 #include "TwitsContainer/twittsContainer.h"
 #include "twitterClient.h"
 #include <iostream>
@@ -6,7 +7,8 @@ int
 main( )
 {
     Twitter obj;
-
+    HttpClient client;
+    obj.setHttpClient( &client );
     obj.setCertPath(
         "/home/sypniewski/Documents/Projekt/TwitterApp/TwitterApp/Cert/"
         "DigiCertHighAssuranceEVRootCA.crt" );

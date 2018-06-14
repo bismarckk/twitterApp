@@ -1,7 +1,7 @@
 #ifndef TWITTER_H
 #define TWITTER_H
 
-#include "Socket/httpClient.h"
+#include "Socket/IHttpClient.h"
 #include "TwitsContainer/twittsContainer.h"
 #include "rapidjson/include/rapidjson/document.h"
 
@@ -23,6 +23,7 @@ public:
     int setClientKeyAndSecret( const std::string& key, const std::string& secret );
     int setOauthTokenAndSecret( const std::string& token, const std::string& secret );
     int setCertPath( const std::string& certPath );
+    int setHttpClient( IHttpClient* client );
 
 private:
     std::string authAppOnly( );
@@ -34,7 +35,7 @@ private:
 
 private:
     std::map< std::string, std::string > m_signature;
-    HttpClient m_httpClient;
+    IHttpClient* m_httpClient;
     TwittsContainer m_twitts;
     std::string m_certPath;
     std::string m_clientKey;

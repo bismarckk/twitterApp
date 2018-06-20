@@ -23,6 +23,8 @@ private:
     static size_t writeCallbackData( char* ptr, size_t size, size_t nmemb, void* data );
     static size_t writeCallbackHeader( char* ptr, size_t size, size_t nmemb, void* header );
     void sendToServer( );
+
+private:
     CURL* m_easyCurl;
     curl_slist* m_list;
     std::string m_data;

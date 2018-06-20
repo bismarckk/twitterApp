@@ -2,7 +2,8 @@
 #include "EncodeFunctions/encodeFunctions.h"
 #include "httpConstans.h"
 #include "oauthConstans.h"
-extern "C" {
+extern "C"
+{
 #include "hmacSha1/src/hmac/hmac.h"
 }
 
@@ -13,7 +14,7 @@ extern "C" {
 
 using namespace Oauth;
 
-Twitter::Twitter( ) : m_httpClient( ) {}
+Twitter::Twitter( ) {}
 
 int
 Twitter::setHttpClient( IHttpClient* client )
